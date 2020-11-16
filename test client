@@ -1,0 +1,35 @@
+import paho.mqtt.client as mqtt #import the client1
+import time
+
+
+domaine="MuraPentHouse/"
+topicPrise="toaster"
+
+broker_address="192.168.0.50"
+client = mqtt.Client("Client") #create new instance
+client.connect(broker_address) #connect to broker
+client.subscribe(domaine+"status")
+client.subscribe(domaine+topicPrise)
+
+
+
+
+def rcv(client, userdata, message):
+        print(message.topic)
+        print(message.payload.decode("utf-8"))
+
+
+def  chose(var):
+        if(var=="on"):
+                client.publish(domaine+"toaster","ON")
+        if(var=="off"):
+                client.publish(domaine+"toaster","OFF")
+        if(var=="get"):
+                client.publish(domaine+"status","GET")
+
+client.loop_start() #start the loop
+client.on_message=rcv
+while(True):
+        chose(input("on,  off,  get\n"))
+
+client.loop_stop()
