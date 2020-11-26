@@ -7,24 +7,24 @@ topicPrise="toaster"
 
 broker_address="192.168.0.50"
 
-client = mqtt.Client("Prise") #create new instance
-client.connect(broker_address) #connect to broker
+client = mqtt.Client("prise") #create new instance
+client.connect(broker_address, port=20204) #connect to broker
+#client.username_pw_set(username="test",password="test")
 client.subscribe(domaine+"status")
 client.subscribe(domaine+topicPrise)
 def rcv(client, userdata, message):
-                global relait
-                tmp=str(message.payload.decode("utf-8"))
-                if(message.topic == domaine+"toaster"):
-                        if(tmp ==  "ON"):
-                                relait="ON"
-                        if(tmp == "OFF"):
-                                relait="OFF"
-                        print(relait)
-                if(message.topic == domaine+"status"):
-                        if(tmp == "GET"):
-                                client.publish(domaine+"status",relait)#publish
-                                print(relait)
+        global relait
+        tmp=str(message.payload.decode("utf-8"))
+        print(message.topic)
+        if(message.topic == domaine+"toaster"):
+                if(tmp ==  "ON"):
+                        relait="ON"
+                if(tmp == "OFF"):
+                        relait="OFF"
+                if(tmp == "GET"):
+                        client.publish(domaine+"status",relait)#publish
+                print(tmp+": "+relait)
 client.loop_start() #start the loop
 client.on_message=rcv
-time.sleep(99999) # wait
+time.sleep(99999)
 client.loop_stop()
