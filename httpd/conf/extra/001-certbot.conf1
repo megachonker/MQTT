@@ -1,0 +1,11 @@
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+
+Include /etc/letsencrypt/options-ssl-apache.conf
+SSLCertificateFile /etc/httpd/conf/server.crt
+SSLCertificateKeyFile /etc/httpd/conf/server.key
+DocumentRoot "srv/http/"
+ServerName prototypecesure.freeboxos.fr
+
+</VirtualHost>
+</IfModule>

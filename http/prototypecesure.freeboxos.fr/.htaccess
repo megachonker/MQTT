@@ -1,0 +1,8 @@
+AuthUserFile /etc/httpd/conf/.htpasswd
+AuthName "Veuillez saisir vos identifiants de connexion"
+AuthType Basic
+Require valid-user
+
+RewriteEngine On
+RewriteCond %{SERVER_PORT} !^20205$
+RewriteRule ^(.*)$ https://prototypecesure.freeboxos.fr:20205/$1 [R=301,L,NE,QSA]
