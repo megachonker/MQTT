@@ -1,10 +1,12 @@
 import paho.mqtt.client as mqtt #import the client1
 import time
+import sys
+
+
 relait="ON"
 
 domaine="MuraPentHouse/"
-topicPrise="toaster"
-
+topicPrise="toaster"+sys.argv[1]
 broker_address="xx.xx.xx.xx"
 
 
@@ -15,9 +17,8 @@ client.username_pw_set(username="Prise",password="SuperMura")
 def rcv(client, userdata, message):
         global relait
         tmp=str(message.payload.decode("utf-8"))
-        print(message.topic)
         print(tmp)
-        if(message.topic == domaine+"toaster"):
+        if(message.topic == domaine+topicPrise):
                 if(tmp ==  "ON"):
                         relait="ON"
                 if(tmp == "OFF"):
@@ -31,7 +32,7 @@ def lg(client, userdata, flags, rc):
         client.subscribe(domaine+"status")
         client.subscribe(domaine+topicPrise)
 
-client.publish(domaine+"toaster","PriseINIT")
+client.publish(domaine+topicPrise,"PriseINIT")
 client.loop_start() #start the loop
 client.on_connect=lg
 client.on_message=rcv
