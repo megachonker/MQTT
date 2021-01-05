@@ -1,80 +1,91 @@
-import paho.mqtt.client as mqtt #import the client1
-import time
-import sys
-import os
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+ 
+const char* ssid = "MEIZU PRO 7 Plus"; // Enter your WiFi name
+const char* password =  "e9c6a0138209"; // Enter WiFi password
+const char* mqttServer = "prototypecesure.freeboxos.fr";
+const int mqttPort = 20204;
+const char* mqttUser = "Prise";
+const char* mqttPassword = "SuperMura";
+const char noprise = '2';
 
-domaine="MuraPentHouse/"
-topicPrise="toaster"+sys.argv[1]
-broker_address="xx.xx.xx.xx"
-
-
-client = mqtt.Client("prise") #create new instance
-client.connect(broker_address, port=xxxx) #connect to broker
-client.username_pw_set(username="xxxx",password="xxxx")
-
-try:
-        with open("bd", 'r') as fichier:
-                fichier.close()
-except OSError as e:
-        with open("bd", 'a+') as fichier:
-                fichier.close()
+WiFiClient espClient;
+PubSubClient client(espClient);
+ 
+void setup() {
 
 
-def dbGetState():
-        with open("bd", 'r') as fichier:
-                for ligne in fichier:
-                        if sys.argv[1] in ligne:
-                                if "ON" in ligne:
-                                        print("DB on")
-                                        return "ON"
-                                else:
-                                        print("DB off")
-                                        return "OFF"
-                                print("BD: topique mais pas de  valeur")
-                        print("BD: Pas de topique")
-                fichier.close()
+  Serial.begin(115200);
+  pinMode(BUILTIN_LED, OUTPUT);
+  
+  WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println("Connected to the WiFi network");
+ 
+  client.setServer(mqttServer, mqttPort);
+  client.setCallback(callback);
+ 
+  while (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+ 
+    if (client.connect("ESP8266Client", mqttUser, mqttPassword )) {
+ 
+      Serial.println("connected");  
+ 
+    } else {
+ 
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      delay(2000);
+ 
+    }
+  }
+  
+  client.publish("MuraPentHouse/status", "Connected"); //Topic name
+  //client.subscribe("MuraPentHouse/+");
+  client.subscribe("MuraPentHouse/toaster2");
+}
+ 
+void callback(char* topic, byte* payload, unsigned int length) {
+ 
+  Serial.print("Message arrived in topic: ");
+  Serial.println(topic);
 
+  if ( (char)payload[1] == 'F'){
+    digitalWrite(BUILTIN_LED, HIGH);
+      Serial.println("led turned off");
+  }
+  if ( (char)payload[1] == 'N'){
+    digitalWrite(BUILTIN_LED, LOW);
+      Serial.println("led turned ON");
 
-def dbSetState(state):
-        var=0
-        with open('bd', 'r') as fichier:
-                texte = fichier.readlines()
-                fichier.close()
-        for ligneIDex in range(len(texte)):
-                if sys.argv[1] in texte[ligneIDex]:
-                        texte[ligneIDex]=domaine+topicPrise+"=>"+state+"\n"
-                        var=1
-
-        if var==0:
-                print("ajout  ligne")
-                texte.append(domaine+topicPrise+"=>"+state+"\n")
-        print(texte)
-
-        with open('bd', 'w') as fichier:
-                fichier.writelines( texte )
-                fichier.close()
-
-def rcv(client, userdata, message):
-        tmp=str(message.payload.decode("utf-8"))
-        if(message.topic == domaine+topicPrise):
-                if(tmp ==  "ON"):
-                        dbSetState("ON")
-                if(tmp == "OFF"):
-                        dbSetState("OFF")
-                if(tmp == "GET"):
-                        client.publish(domaine+"status",str(dbGetState()))
-                print("état: "+tmp+":"+str(dbGetState()))
-
-def lg(client, userdata, flags, rc):
-        print("Connected flags ",str(flags),"result code ",str(rc))
-        client.subscribe(domaine+"status")
-        client.subscribe(domaine+topicPrise)
-
-
-client.publish(domaine+topicPrise,"PriseINIT")
-client.loop_start() #start the loop
-client.on_connect=lg
-client.on_message=rcv
-
-
-client.loop_forever()
+  }
+  if( (char)payload[1] == 'E'){
+          Serial.println("get status");
+    if(digitalRead(BUILTIN_LED) == 1){
+            client.publish("MuraPentHouse/status",  "Prise 2: OFF"); //Topic name
+    }
+    else{
+            client.publish("MuraPentHouse/status",  "Prise 2: ON"); //Topic name
+    }
+  }
+  
+  
+ 
+  Serial.print("Prise 1:");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+ 
+  Serial.println();
+  Serial.println("-----------------------");
+ 
+}
+ 
+void loop() {
+  client.loop();
+  }
