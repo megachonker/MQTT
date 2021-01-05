@@ -1,0 +1,92 @@
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+ 
+const char* ssid = "MEIZU PRO 7 Plus"; // Enter your WiFi name
+const char* password =  "e9c6a0138209"; // Enter WiFi password
+const char* mqttServer = "prototypecesure.freeboxos.fr";
+const int mqttPort = 20204;
+const char* mqttUser = "Prise";
+const char* mqttPassword = "SuperMura";
+ 
+WiFiClient espClient;
+PubSubClient client(espClient);
+ 
+void setup() {
+
+  Serial.begin(115200);
+  pinMode(BUILTIN_LED, OUTPUT);
+  
+  WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println("Connected to the WiFi network");
+ 
+  client.setServer(mqttServer, mqttPort);
+  client.setCallback(callback);
+ 
+  while (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+ 
+    if (client.connect("ESP8266Client", mqttUser, mqttPassword )) {
+ 
+      Serial.println("connected");  
+ 
+    } else {
+ 
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      delay(2000);
+ 
+    }
+  }
+ 
+  client.publish("MuraPentHouse/status", "Connected"); //Topic name
+  //client.subscribe("MuraPentHouse/+");
+  client.subscribe("MuraPentHouse/toaster2");
+}
+ 
+void callback(char* topic, byte* payload, unsigned int length) {
+ 
+  Serial.print("Message arrived in topic: ");
+  Serial.println(topic);
+
+  if ( (char)payload[1] == 'F'){
+    digitalWrite(BUILTIN_LED, HIGH);
+      Serial.println("led turned off");
+  }
+  if ( (char)payload[1] == 'N'){
+    digitalWrite(BUILTIN_LED, LOW);
+      Serial.println("led turned ON");
+
+  }
+  if( (char)payload[1] == 'E'){
+          Serial.println("get status");
+
+    if(digitalRead(BUILTIN_LED) == 0){
+      char var[] = "OFF";
+      client.publish("MuraPentHouse/status",  var); //Topic name
+
+    }
+    else{
+      char var[] = "ON";
+      client.publish("MuraPentHouse/status",  var); //Topic name
+    }
+  }
+  
+ 
+  Serial.print("Prise 1:");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+ 
+  Serial.println();
+  Serial.println("-----------------------");
+ 
+}
+ 
+void loop() {
+  client.loop();
+  }
