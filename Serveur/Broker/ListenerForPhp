@@ -21,6 +21,7 @@ def dbSetState(state, noprise):
         if(noprise == 2):
                 fp2 = open("cfp2", "w")
                 fp2.write(state)
+                fp2.close()
 
 def rcv(client, userdata, message):
         tmp=str(message.payload.decode("utf-8"))
