@@ -58,12 +58,12 @@ def rcv(client, userdata, message):
 	if(message.topic == domaine+topicPrise):
 		if(tmp ==  "ON"):
 			dbSetState("Prise "+sys.argv[1]+": ON")
-			client.publish(domaine+"status",str(dbGetState())+"\n")
+			client.publish(domaine+"status",str(dbGetState()))
 		if(tmp == "OFF"):
 		        dbSetState("Prise "+sys.argv[1]+": OFF")
-		        client.publish(domaine+"status",str(dbGetState())+"\n")
+		        client.publish(domaine+"status",str(dbGetState()))
 		if(tmp == "GET"):
-		        client.publish(domaine+"status",str(dbGetState())+"\n")
+		        client.publish(domaine+"status",str(dbGetState()))
 		print("état: "+tmp+":"+str(dbGetState()))
 
 def lg(client, userdata, flags, rc):
