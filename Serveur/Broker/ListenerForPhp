@@ -11,12 +11,13 @@ client = mqtt.Client("éé") #create new instance
 client.connect(broker_address, port=x) #connect to broker
 client.username_pw_set(username="x",password="x")
 
-cfp1="/srv/http/admain/ScriptPHP"
-cfp2="/srv/http/dmaine/ScriptPHP"
+cfp1="/srv/http/admain/ScriptPHP/p1"
+cfp2="/srv/http/dmaine/ScriptPHP/p2"
 def dbSetState(state, noprise):
         if(noprise == 1):
                 fp1 = open(cfp1, "w")
                 fp1.write(state)
+                fp1.close()
         if(noprise == 2):
                 fp2 = open("cfp2", "w")
                 fp2.write(state)
@@ -28,12 +29,13 @@ def rcv(client, userdata, message):
                         dbSetState("1", 2)
         if(tmp == "Prise 2: OFF"):
                         dbSetState("0", 2)
-                        print("OFF write")
         if(tmp == "Prise 1: ON"):
                         dbSetState("1", 1)
+                        print("passe on")
         if(tmp == "Prise 1: OFF"):
+                        print("passe off")
                         dbSetState("0", 1)
-
+        print(tmp)
 def lg(client, userdata, flags, rc):
         print("Connected flags ",str(flags),"result code ",str(rc))
         client.subscribe(domaine)
