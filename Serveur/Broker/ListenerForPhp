@@ -1,0 +1,48 @@
+import paho.mqtt.client as mqtt #import the client1
+import time
+import sys
+import os
+
+domaine="she"
+broker_address="lelo"
+
+
+client = mqtt.Client("éé") #create new instance
+client.connect(broker_address, port=x) #connect to broker
+client.username_pw_set(username="x",password="x")
+
+cfp1="/srv/http/admain/ScriptPHP"
+cfp2="/srv/http/dmaine/ScriptPHP"
+def dbSetState(state, noprise):
+        if(noprise == 1):
+                fp1 = open(cfp1, "w")
+                fp1.write(state)
+        if(noprise == 2):
+                fp2 = open("cfp2", "w")
+                fp2.write(state)
+
+def rcv(client, userdata, message):
+        tmp=str(message.payload.decode("utf-8"))
+        print(tmp)
+        if(tmp == "Prise 2: ON"):
+                        dbSetState("ON", 2)
+        if(tmp == "Prise 2: OFF"):
+                        dbSetState("OFF", 2)
+                        print("OFF write")
+        if(tmp == "ON"):
+                        dbSetState("ON", 1)
+        if(tmp == "OFF"):
+                        dbSetState("OFF", 1)
+
+def lg(client, userdata, flags, rc):
+        print("Connected flags ",str(flags),"result code ",str(rc))
+        client.subscribe(domaine)
+
+
+client.publish(domaine,"BrokerListenON")
+client.loop_start() #start the loop
+client.on_connect=lg
+client.on_message=rcv
+
+
+client.loop_forever()
