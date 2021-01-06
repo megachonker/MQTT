@@ -11,59 +11,60 @@ broker_address="xx.xx.xx.xx"
 client = mqtt.Client("prise") #create new instance
 client.connect(broker_address, port=xxxx) #connect to broker
 client.username_pw_set(username="xxxx",password="xxxx")
-
 try:
-        with open("bd", 'r') as fichier:
-                fichier.close()
+	with open("bd", 'r') as fichier:
+		fichier.close()
 except OSError as e:
-        with open("bd", 'a+') as fichier:
-                fichier.close()
+	with open("bd", 'a+') as fichier:
+		fichier.close()
 
 
 def dbGetState():
-        with open("bd", 'r') as fichier:
-                for ligne in fichier:
-                        if sys.argv[1] in ligne:
-                                if "ON" in ligne:
-                                        print("DB on")
-                                        return "ON"
-                                else:
-                                        print("DB off")
-                                        return "OFF"
-                                print("BD: topique mais pas de  valeur")
-                        print("BD: Pas de topique")
-                fichier.close()
+	with open("bd", 'r') as fichier:
+		for ligne in fichier:
+			if sys.argv[1] in ligne:
+				if "ON" in ligne:
+					print("DB on")
+					return "Prise "+sys.argv[1]+": ON"
+				else:
+					print("DB off")
+					return "Prise "+sys.argv[1]+": OFF"
+				print("BD: topique mais pas de  valeur")
+			print("BD: Pas de topique")
+		fichier.close()
 
 
 def dbSetState(state):
-        var=0
-        with open('bd', 'r') as fichier:
-                texte = fichier.readlines()
-                fichier.close()
-        for ligneIDex in range(len(texte)):
-                if sys.argv[1] in texte[ligneIDex]:
-                        texte[ligneIDex]=domaine+topicPrise+"=>"+state+"\n"
-                        var=1
+	var=0
+	with open('bd', 'r') as fichier:
+		texte = fichier.readlines()
+		fichier.close()
+	for ligneIDex in range(len(texte)):
+		if sys.argv[1] in texte[ligneIDex]:
+			texte[ligneIDex]=domaine+topicPrise+"=>"+state+"\n"
+			var=1
 
-        if var==0:
-                print("ajout  ligne")
-                texte.append(domaine+topicPrise+"=>"+state+"\n")
-        print(texte)
+	if var==0:
+		print("ajout  ligne")
+		texte.append(domaine+topicPrise+"=>"+state+"\n")
+	print(texte)
 
-        with open('bd', 'w') as fichier:
-                fichier.writelines( texte )
-                fichier.close()
+	with open('bd', 'w') as fichier:
+		fichier.writelines( texte )
+		fichier.close()
 
 def rcv(client, userdata, message):
-        tmp=str(message.payload.decode("utf-8"))
-        if(message.topic == domaine+topicPrise):
-                if(tmp ==  "ON"):
-                        dbSetState("ON")
-                if(tmp == "OFF"):
-                        dbSetState("OFF")
-                if(tmp == "GET"):
-                        client.publish(domaine+"status",str(dbGetState()))
-                print("état: "+tmp+":"+str(dbGetState()))
+	tmp=str(message.payload.decode("utf-8"))
+	if(message.topic == domaine+topicPrise):
+		if(tmp ==  "ON"):
+			dbSetState("Prise "+sys.argv[1]+": ON")
+			client.publish(domaine+"status",str(dbGetState())+"\n")
+		if(tmp == "OFF"):
+		        dbSetState("Prise "+sys.argv[1]+": OFF")
+		        client.publish(domaine+"status",str(dbGetState())+"\n")
+		if(tmp == "GET"):
+		        client.publish(domaine+"status",str(dbGetState())+"\n")
+		print("état: "+tmp+":"+str(dbGetState()))
 
 def lg(client, userdata, flags, rc):
         print("Connected flags ",str(flags),"result code ",str(rc))
@@ -76,5 +77,6 @@ client.loop_start() #start the loop
 client.on_connect=lg
 client.on_message=rcv
 
-
 client.loop_forever()
+
+
