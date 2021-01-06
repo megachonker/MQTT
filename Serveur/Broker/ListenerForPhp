@@ -25,14 +25,14 @@ def rcv(client, userdata, message):
         tmp=str(message.payload.decode("utf-8"))
         print(tmp)
         if(tmp == "Prise 2: ON"):
-                        dbSetState("ON", 2)
+                        dbSetState("1", 2)
         if(tmp == "Prise 2: OFF"):
-                        dbSetState("OFF", 2)
+                        dbSetState("0", 2)
                         print("OFF write")
-        if(tmp == "ON"):
-                        dbSetState("ON", 1)
-        if(tmp == "OFF"):
-                        dbSetState("OFF", 1)
+        if(tmp == "Prise 1: ON"):
+                        dbSetState("1", 1)
+        if(tmp == "Prise 1: OFF"):
+                        dbSetState("0", 1)
 
 def lg(client, userdata, flags, rc):
         print("Connected flags ",str(flags),"result code ",str(rc))
