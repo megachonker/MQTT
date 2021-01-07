@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="off2" type="id" />
+    <item name="textView" type="id" />
+    <item name="button2" type="id" />
+    <item name="lampe1" type="id" />
+    <item name="on2" type="id" />
+    <item name="disconnBtn2" type="id" />
+    <item name="connBtn2" type="id" />
+    <item name="subText2" type="id" />
+</resources>
