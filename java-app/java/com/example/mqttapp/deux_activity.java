@@ -306,5 +306,3 @@ public class deux_activity extends AppCompatActivity {
 
 }
 
-
-
